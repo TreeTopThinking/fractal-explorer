@@ -1,5 +1,5 @@
 use bevy::{
-    input::mouse::AccumulatedMouseScroll,
+    input::mouse::{AccumulatedMouseScroll, MouseMotion},
     prelude::*,
     render::render_resource::AsBindGroup,
     shader::ShaderRef,
@@ -42,12 +42,15 @@ fn setup(
 fn update_fractal_material(
     mut materials: ResMut<Assets<FractalMaterial>>,
     scroll: Res<AccumulatedMouseScroll>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    mut mouse_motion: MessageReader<MouseMotion>,
     window: Single<&Window>,
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
     const ZOOM_SPEED: f32 = 3.0;
-    const MOVE_SPEED: f32 = 0.2;
+    const MOUSE_MOVE_SPEED: f32 = 0.1;
+    const KEYBOARD_MOVE_SPEED: f32 = 0.4;
 
     for (_, material) in materials.iter_mut() {
         material.mouse_pos = get_mouse_pos(&window);
@@ -62,16 +65,23 @@ fn update_fractal_material(
             material.zoom = new_zoom;
         }
 
-        if input.pressed(KeyCode::KeyW) {
-            material.center.y += MOVE_SPEED * time.delta_secs() * material.zoom;
-        } else if input.pressed(KeyCode::KeyS) {
-            material.center.y -= MOVE_SPEED * time.delta_secs() * material.zoom;
+        if mouse.pressed(MouseButton::Left) {
+            for event in mouse_motion.read() {
+                material.center +=
+                    event.delta * material.zoom * time.delta_secs() * MOUSE_MOVE_SPEED;
+            }
         }
 
-        if input.pressed(KeyCode::KeyA) {
-            material.center.x += MOVE_SPEED * time.delta_secs() * material.zoom;
-        } else if input.pressed(KeyCode::KeyD) {
-            material.center.x -= MOVE_SPEED * time.delta_secs() * material.zoom;
+        if input.pressed(KeyCode::KeyW) || input.pressed(KeyCode::ArrowUp) {
+            material.center.y += KEYBOARD_MOVE_SPEED * time.delta_secs() * material.zoom;
+        } else if input.pressed(KeyCode::KeyS) || input.pressed(KeyCode::ArrowDown) {
+            material.center.y -= KEYBOARD_MOVE_SPEED * time.delta_secs() * material.zoom;
+        }
+
+        if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
+            material.center.x += KEYBOARD_MOVE_SPEED * time.delta_secs() * material.zoom;
+        } else if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
+            material.center.x -= KEYBOARD_MOVE_SPEED * time.delta_secs() * material.zoom;
         }
     }
 }
