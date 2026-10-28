@@ -44,12 +44,14 @@ fn update_fractal_material(
     scroll: Res<AccumulatedMouseScroll>,
     window: Single<&Window>,
     input: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
 ) {
-    const SPEED: f32 = 0.05;
+    const ZOOM_SPEED: f32 = 3.0;
+    const MOVE_SPEED: f32 = 0.2;
 
     for (_, material) in materials.iter_mut() {
         material.mouse_pos = get_mouse_pos(&window);
-        let zoom_factor = 2.0_f32.powf(-scroll.delta.y * SPEED);
+        let zoom_factor = 2.0_f32.powf(-scroll.delta.y * ZOOM_SPEED * time.delta_secs());
 
         let scroll_delta = get_scroll_delta(&scroll);
         if scroll_delta != 0.0 {
@@ -61,15 +63,15 @@ fn update_fractal_material(
         }
 
         if input.pressed(KeyCode::KeyW) {
-            material.center.y += SPEED * material.zoom;
+            material.center.y += MOVE_SPEED * time.delta_secs() * material.zoom;
         } else if input.pressed(KeyCode::KeyS) {
-            material.center.y -= SPEED / zoom_factor * material.zoom;
+            material.center.y -= MOVE_SPEED * time.delta_secs() * material.zoom;
         }
 
         if input.pressed(KeyCode::KeyA) {
-            material.center.x += SPEED / zoom_factor * material.zoom;
+            material.center.x += MOVE_SPEED * time.delta_secs() * material.zoom;
         } else if input.pressed(KeyCode::KeyD) {
-            material.center.x -= SPEED / zoom_factor * material.zoom;
+            material.center.x -= MOVE_SPEED * time.delta_secs() * material.zoom;
         }
     }
 }
