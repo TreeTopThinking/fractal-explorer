@@ -48,8 +48,8 @@ fn update_fractal_material(
     input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    const ZOOM_SPEED: f32 = 3.0;
-    const MOUSE_MOVE_SPEED: f32 = 0.1;
+    const ZOOM_SPEED: f32 = 4.0;
+    const MOUSE_MOVE_SPEED: f32 = 0.15;
     const KEYBOARD_MOVE_SPEED: f32 = 0.4;
 
     for (_, material) in materials.iter_mut() {
